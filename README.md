@@ -3,7 +3,9 @@ First usage of the raylib, sorting visualisation
 Controls:
 
 [B] - Bubble sort
+
 [R] - Reset the data
+
 [ArrowKeys] - Change speed
 
 ![sc1](https://github.com/user-attachments/assets/bad34920-847d-40d3-85bb-c58575c63da2)
