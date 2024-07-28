@@ -1,4 +1,6 @@
-First usage of the raylib, sorting visualisation
+First usage of the raylib, sorting visualisation.
+
+To download, check the releases tab.
 
 Controls:
 
