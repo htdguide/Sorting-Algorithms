@@ -128,7 +128,7 @@ int tempDataSize = dataSize;
 int FPS = 60;
 int counter = 0;
 string s = "Attempts: ";
-string msg, sortMethod;
+string msg;
 
 Rectangle bubbleButton = { 10, 460, 90, 30 };
 Rectangle selectionButton = { 110, 460, 90, 30 };  // 10px gap
@@ -173,11 +173,8 @@ void gameLoop()
     ClearBackground(BLACK);
 
     msg = s + to_string(attempts);
-    sortMethod = "Sorting Method: ";
-
     DrawText(("Attempts: " + to_string(attempts)).c_str(), 10, screenHeight - 130, 20, WHITE);
-    DrawText((sortMethod + "Insertion Sort").c_str(), 10, screenHeight - 100, 20, WHITE);
-    DrawText(("FPS: " + to_string(FPS)).c_str(), 10, screenHeight - 70, 20, WHITE);
+    DrawText(("FPS: " + to_string(FPS)).c_str(), 10, screenHeight - 100, 20, WHITE);
 
     drawData(dataArray, WHITE, screenWidth, screenHeight);
 
@@ -207,21 +204,18 @@ void gameLoop()
     if (isTouchingButton(bubbleButton))
     {
         bubbleSort(dataArray, bubbleI, bubbleJ);
-        sortMethod = "Bubble Sort";
         attempts++;
     }
 
     if (isTouchingButton(selectionButton))
     {
         selectionSort(dataArray, selectionI, selectionMinIndex);
-        sortMethod = "Selection Sort";
         attempts++;
     }
 
     if (isTouchingButton(insertionButton))
     {
         insertionSort(dataArray, insertionI, insertionJ);
-        sortMethod = "Insertion Sort";
         attempts++;
     }
 
