@@ -6,21 +6,19 @@
 #include <emscripten.h>
 
 using namespace std;
-const int dataSize = 78;
+const int dataSize = 40;
 int dataArray[dataSize];
 
-// Drawing method for a rectangle with gray bounds
 void drawDataRectangle(int posX, int posY, int width, int height, Color color) 
 {
     DrawRectangle(posX, posY, width, height, color);
     DrawRectangleLines(posX, posY, width, height, GRAY);
 }
 
-// Drawing method for the arrays
 void drawData(int data[], Color color, int screenWidth, int screenHeight) 
 {
-    int xSpacing = screenWidth / (dataSize + 2); // gap between lines based on screen width
-    int yBase = screenHeight - 160; // Move the array up to reduce the gap
+    int xSpacing = screenWidth / (dataSize + 2);
+    int yBase = screenHeight - 200;
 
     for (int i = 0; i < dataSize; i++)
     {
@@ -28,15 +26,13 @@ void drawData(int data[], Color color, int screenWidth, int screenHeight)
     }
 }
 
-// Drawing method for a specific unit of the array with a certain color
 void drawData(int data[], int num, Color color, int screenWidth, int screenHeight) 
 {
-    int xSpacing = screenWidth / (dataSize + 2); // gap between lines based on screen width
-    int yBase = screenHeight - 160; // Same adjustment for individual element
+    int xSpacing = screenWidth / (dataSize + 2);
+    int yBase = screenHeight - 200;
     drawDataRectangle(xSpacing * num + 10, yBase - data[num], xSpacing - 2, data[num], color);
 }
 
-// Filling the arrays method with random values
 void fillData(int data[])  
 {
     for (int i = 0; i < dataSize; i++)
@@ -45,7 +41,6 @@ void fillData(int data[])
     }
 }
 
-// Bubble sort logic
 void bubbleSort(int data[], int &i, int &j)
 {
     if (i < dataSize - 1)
@@ -67,7 +62,6 @@ void bubbleSort(int data[], int &i, int &j)
     }
 }
 
-// Selection sort logic
 void selectionSort(int data[], int &i, int &minIndex)
 {
     if (i < dataSize)
@@ -95,7 +89,6 @@ void selectionSort(int data[], int &i, int &minIndex)
     }
 }
 
-// Insertion sort logic
 void insertionSort(int data[], int &i, int &j)
 {
     if (i < dataSize - 1)
@@ -117,10 +110,20 @@ void insertionSort(int data[], int &i, int &j)
     }
 }
 
-// Check if touch is inside the button rectangle
-bool isTouchingButton(Rectangle button)
+void handleTouchInput()
 {
-    return CheckCollisionPointRec(GetTouchPosition(0), button);
+    for (int i = 0; i < GetTouchPointCount(); i++)
+    {
+        Vector2 touchPos = GetTouchPosition(i);
+        if (CheckCollisionPointRec(touchPos, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}))
+        {
+            SetMousePosition((int)touchPos.x, (int)touchPos.y);
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            {
+                DrawCircleV(touchPos, 5, RED);
+            }
+        }
+    }
 }
 
 int attempts = 0;
@@ -130,96 +133,72 @@ int counter = 0;
 string s = "Attempts: ";
 string msg;
 
-Rectangle bubbleButton = { 10, 460, 90, 30 };
-Rectangle selectionButton = { 110, 460, 90, 30 };  // 10px gap
-Rectangle insertionButton = { 210, 460, 90, 30 };  // 10px gap
-Rectangle randomButton = { 310, 460, 90, 30 };  // 10px gap
-Rectangle fpsUpButton = { 410, 460, 90, 30 };  // 10px gap
-Rectangle fpsDownButton = { 510, 460, 90, 30 };  // 10px gap
+Rectangle bubbleButton = { 10, 320, 180, 30 };
+Rectangle selectionButton = { 210, 320, 180, 30 };
+Rectangle insertionButton = { 10, 360, 180, 30 };
+Rectangle randomButton = { 210, 360, 180, 30 };
+Rectangle fpsIncreaseButton = { 10, 400, 180, 30 };
+Rectangle fpsDecreaseButton = { 210, 400, 180, 30 };
 
 void gameLoop()
 {
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
 
-    // Dynamically resize buttons
-    float buttonWidth = screenWidth / 7.0f; 
-    float buttonHeight = screenHeight / 20.0f;
-
-    bubbleButton.width = buttonWidth;
-    selectionButton.width = buttonWidth;
-    insertionButton.width = buttonWidth;
-    randomButton.width = buttonWidth;
-    fpsUpButton.width = buttonWidth;
-    fpsDownButton.width = buttonWidth;
-    bubbleButton.height = buttonHeight;
-    selectionButton.height = buttonHeight;
-    insertionButton.height = buttonHeight;
-    randomButton.height = buttonHeight;
-    fpsUpButton.height = buttonHeight;
-    fpsDownButton.height = buttonHeight;
-
-    // Adjust buttons for a tighter layout with a 10px gap
-    bubbleButton.x = screenWidth * 0.02f;
-    selectionButton.x = bubbleButton.x + bubbleButton.width + 10;  // 10px gap
-    insertionButton.x = selectionButton.x + selectionButton.width + 10;  // 10px gap
-    randomButton.x = insertionButton.x + insertionButton.width + 10;  // 10px gap
-    fpsUpButton.x = randomButton.x + randomButton.width + 10;  // 10px gap
-    fpsDownButton.x = fpsUpButton.x + fpsUpButton.width + 10;  // 10px gap
-
     SetTargetFPS(FPS);
+
+    handleTouchInput();
 
     BeginDrawing();
     ClearBackground(BLACK);
 
     msg = s + to_string(attempts);
-    DrawText(("Attempts: " + to_string(attempts)).c_str(), 10, screenHeight - 130, 20, WHITE);
-    DrawText(("FPS: " + to_string(FPS)).c_str(), 10, screenHeight - 100, 20, WHITE);
+    DrawText(("Attempts: " + to_string(attempts)).c_str(), 10, 450, 20, WHITE);
+    DrawText(("FPS: " + to_string(FPS)).c_str(), 10, 480, 20, WHITE);
 
     drawData(dataArray, WHITE, screenWidth, screenHeight);
 
-    // Button drawing
     DrawRectangleRec(bubbleButton, DARKGRAY);
-    DrawText("Bubble Sort", bubbleButton.x + 10, bubbleButton.y + 10, 12, WHITE);
+    DrawText("Bubble Sort", bubbleButton.x + 10, bubbleButton.y + 5, 16, WHITE);
 
     DrawRectangleRec(selectionButton, DARKGRAY);
-    DrawText("Selection", selectionButton.x + 10, selectionButton.y + 10, 12, WHITE);
+    DrawText("Selection Sort", selectionButton.x + 10, selectionButton.y + 5, 16, WHITE);
 
     DrawRectangleRec(insertionButton, DARKGRAY);
-    DrawText("Insertion", insertionButton.x + 10, insertionButton.y + 10, 12, WHITE);
+    DrawText("Insertion Sort", insertionButton.x + 10, insertionButton.y + 5, 16, WHITE);
 
     DrawRectangleRec(randomButton, DARKGRAY);
-    DrawText("Randomize", randomButton.x + 10, randomButton.y + 10, 12, WHITE);
+    DrawText("Randomize", randomButton.x + 10, randomButton.y + 5, 16, WHITE);
 
-    DrawRectangleRec(fpsUpButton, DARKGRAY);
-    DrawText("FPS +", fpsUpButton.x + 10, fpsUpButton.y + 10, 12, WHITE);
+    DrawRectangleRec(fpsIncreaseButton, DARKGRAY);
+    DrawText("FPS+", fpsIncreaseButton.x + 10, fpsIncreaseButton.y + 5, 16, WHITE);
 
-    DrawRectangleRec(fpsDownButton, DARKGRAY);
-    DrawText("FPS -", fpsDownButton.x + 10, fpsDownButton.y + 10, 12, WHITE);
+    DrawRectangleRec(fpsDecreaseButton, DARKGRAY);
+    DrawText("FPS-", fpsDecreaseButton.x + 10, fpsDecreaseButton.y + 5, 16, WHITE);
 
     static int bubbleI = 0, bubbleJ = 0;
     static int selectionI = 0, selectionMinIndex = 0;
     static int insertionI = 0, insertionJ = 0;
 
-    if (isTouchingButton(bubbleButton))
+    if (CheckCollisionPointRec(GetMousePosition(), bubbleButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
         bubbleSort(dataArray, bubbleI, bubbleJ);
         attempts++;
     }
 
-    if (isTouchingButton(selectionButton))
+    if (CheckCollisionPointRec(GetMousePosition(), selectionButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
         selectionSort(dataArray, selectionI, selectionMinIndex);
         attempts++;
     }
 
-    if (isTouchingButton(insertionButton))
+    if (CheckCollisionPointRec(GetMousePosition(), insertionButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
         insertionSort(dataArray, insertionI, insertionJ);
         attempts++;
     }
 
-    if (isTouchingButton(randomButton))
+    if (CheckCollisionPointRec(GetMousePosition(), randomButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
         fillData(dataArray);
         attempts = 0;
@@ -228,14 +207,16 @@ void gameLoop()
         insertionI = insertionJ = 0;
     }
 
-    if (isTouchingButton(fpsUpButton) && FPS < 300)
+    if (CheckCollisionPointRec(GetMousePosition(), fpsIncreaseButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
-        FPS++;
+        FPS += 5;
+        if (FPS > 60) FPS = 60; // Ensure FPS doesn't exceed 60
     }
 
-    if (isTouchingButton(fpsDownButton) && FPS > 2)
+    if (CheckCollisionPointRec(GetMousePosition(), fpsDecreaseButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
-        FPS--;
+        FPS -= 5;
+        if (FPS < 5) FPS = 5;
     }
 
     EndDrawing();
@@ -243,7 +224,7 @@ void gameLoop()
 
 int main() 
 {
-    InitWindow(800, 500, "Sorting");
+    InitWindow(400, 500, "Sorting");
     fillData(dataArray);
 
     emscripten_set_main_loop(gameLoop, 0, 1);
