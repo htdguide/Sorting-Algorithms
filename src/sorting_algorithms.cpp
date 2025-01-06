@@ -140,6 +140,12 @@ Rectangle randomButton = { 210, 360, 180, 30 };
 Rectangle fpsIncreaseButton = { 10, 400, 180, 30 };
 Rectangle fpsDecreaseButton = { 210, 400, 180, 30 };
 
+void drawButton(Rectangle button, const char* text, bool isPressed)
+{
+    DrawRectangleRec(button, isPressed ? LIGHTGRAY : DARKGRAY);
+    DrawText(text, button.x + 10, button.y + 5, 16, WHITE);
+}
+
 void gameLoop()
 {
     int screenWidth = GetScreenWidth();
@@ -158,47 +164,43 @@ void gameLoop()
 
     drawData(dataArray, WHITE, screenWidth, screenHeight);
 
-    DrawRectangleRec(bubbleButton, DARKGRAY);
-    DrawText("Bubble Sort", bubbleButton.x + 10, bubbleButton.y + 5, 16, WHITE);
-
-    DrawRectangleRec(selectionButton, DARKGRAY);
-    DrawText("Selection Sort", selectionButton.x + 10, selectionButton.y + 5, 16, WHITE);
-
-    DrawRectangleRec(insertionButton, DARKGRAY);
-    DrawText("Insertion Sort", insertionButton.x + 10, insertionButton.y + 5, 16, WHITE);
-
-    DrawRectangleRec(randomButton, DARKGRAY);
-    DrawText("Randomize", randomButton.x + 10, randomButton.y + 5, 16, WHITE);
-
-    DrawRectangleRec(fpsIncreaseButton, DARKGRAY);
-    DrawText("FPS+", fpsIncreaseButton.x + 10, fpsIncreaseButton.y + 5, 16, WHITE);
-
-    DrawRectangleRec(fpsDecreaseButton, DARKGRAY);
-    DrawText("FPS-", fpsDecreaseButton.x + 10, fpsDecreaseButton.y + 5, 16, WHITE);
-
     static int bubbleI = 0, bubbleJ = 0;
     static int selectionI = 0, selectionMinIndex = 0;
     static int insertionI = 0, insertionJ = 0;
 
-    if (CheckCollisionPointRec(GetMousePosition(), bubbleButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    bool bubblePressed = CheckCollisionPointRec(GetMousePosition(), bubbleButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+    bool selectionPressed = CheckCollisionPointRec(GetMousePosition(), selectionButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+    bool insertionPressed = CheckCollisionPointRec(GetMousePosition(), insertionButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+    bool randomPressed = CheckCollisionPointRec(GetMousePosition(), randomButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+    bool fpsIncreasePressed = CheckCollisionPointRec(GetMousePosition(), fpsIncreaseButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+    bool fpsDecreasePressed = CheckCollisionPointRec(GetMousePosition(), fpsDecreaseButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON);
+
+    drawButton(bubbleButton, "Bubble Sort", bubblePressed);
+    drawButton(selectionButton, "Selection Sort", selectionPressed);
+    drawButton(insertionButton, "Insertion Sort", insertionPressed);
+    drawButton(randomButton, "Randomize", randomPressed);
+    drawButton(fpsIncreaseButton, "FPS+", fpsIncreasePressed);
+    drawButton(fpsDecreaseButton, "FPS-", fpsDecreasePressed);
+
+    if (bubblePressed)
     {
         bubbleSort(dataArray, bubbleI, bubbleJ);
         attempts++;
     }
 
-    if (CheckCollisionPointRec(GetMousePosition(), selectionButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (selectionPressed)
     {
         selectionSort(dataArray, selectionI, selectionMinIndex);
         attempts++;
     }
 
-    if (CheckCollisionPointRec(GetMousePosition(), insertionButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (insertionPressed)
     {
         insertionSort(dataArray, insertionI, insertionJ);
         attempts++;
     }
 
-    if (CheckCollisionPointRec(GetMousePosition(), randomButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (randomPressed)
     {
         fillData(dataArray);
         attempts = 0;
@@ -207,15 +209,15 @@ void gameLoop()
         insertionI = insertionJ = 0;
     }
 
-    if (CheckCollisionPointRec(GetMousePosition(), fpsIncreaseButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (fpsIncreasePressed)
     {
-        FPS += 5;
+        FPS += 1;
         if (FPS > 60) FPS = 60; // Ensure FPS doesn't exceed 60
     }
 
-    if (CheckCollisionPointRec(GetMousePosition(), fpsDecreaseButton) && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (fpsDecreasePressed)
     {
-        FPS -= 5;
+        FPS -= 1;
         if (FPS < 5) FPS = 5;
     }
 
