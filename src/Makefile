@@ -27,6 +27,7 @@
 #------------------------------------------------------------------------------------------------
 # Define target platform: PLATFORM_DESKTOP, PLATFORM_WEB, PLATFORM_DRM, PLATFORM_ANDROID
 PLATFORM              ?= PLATFORM_WEB
+EXPORTED_FUNCTIONS    ?= '_initializeWindow','_cancelLoop'
 
 # Define project variables
 PROJECT_NAME          ?= sorting_algorithms
@@ -152,6 +153,13 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # WARNING: To compile to HTML5, code must be redesigned
     # to use emscripten.h and emscripten_set_main_loop()
     CC = emcc
+
+    # Additional necessary flags for handling keep-alive behavior
+    CFLAGS += -s FORCE_FILESYSTEM=1
+
+    # Add the export flag to the linker options
+    LDFLAGS += -s EXPORTED_FUNCTIONS="[$(EXPORTED_FUNCTIONS)]"
+
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
     ifeq ($(USE_RPI_CROSS_COMPILER),TRUE)

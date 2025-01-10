@@ -6,8 +6,11 @@
 #include <emscripten.h>
 
 using namespace std;
+
+volatile bool loopActive = true;
 const int dataSize = 40;
 int dataArray[dataSize];
+void (*currentAppLoop)() = nullptr;
 
 void drawDataRectangle(int posX, int posY, int width, int height, Color color) 
 {
@@ -148,6 +151,14 @@ void drawButton(Rectangle button, const char* text, bool isPressed)
 
 void gameLoop()
 {
+    if (!loopActive) 
+    {
+        emscripten_cancel_main_loop();
+        CloseWindow();
+        printf("main stopped.\n");
+        return;
+    }
+
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
 
@@ -224,12 +235,31 @@ void gameLoop()
     EndDrawing();
 }
 
+
 int main() 
 {
+    if(currentAppLoop == nullptr) currentAppLoop = gameLoop;
+    loopActive = true;
     InitWindow(400, 500, "Sorting");
     fillData(dataArray);
-
-    emscripten_set_main_loop(gameLoop, 0, 1);
-
+    emscripten_set_main_loop(currentAppLoop, 0, 0);
+    printf("very end");
     return 0;
+}
+
+extern "C" {
+    EMSCRIPTEN_KEEPALIVE
+    void cancelLoop()
+    {
+        loopActive = false;
+        printf("_cancelLoop called from JavaScript.\n");
+    }
+    
+    EMSCRIPTEN_KEEPALIVE
+    void initializeWindow()
+    {
+        printf("main started again");
+        loopActive = true;
+        main();
+    }
 }
